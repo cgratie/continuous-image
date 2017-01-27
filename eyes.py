@@ -32,10 +32,9 @@ class GridEye(Eye):
     def __init__(self, pos, up, front, width, height, size):
         super(GridEye, self).__init__(pos, up, front)
 
-        self._gx = np.linspace(0, 1, width)[:, None, None] * size * (width - 1)
-        self._gy = np.linspace(1, 0, height)[None, :, None] * size * (height - 1)
-        self._pos_updated()
-        self._ray_dir = self._front[None, None, :]
+        self._gx = np.linspace(-0.5, 0.5, width)[:, None, None] * size * (width - 1)
+        self._gy = np.linspace(0.5, -0.5, height)[None, :, None] * size * (height - 1)
+        self._update_ray()
 
         self._view = np.zeros((height, width, 3))
 
@@ -47,5 +46,12 @@ class GridEye(Eye):
 
     def _pos_updated(self):
         super(GridEye, self)._pos_updated()
+        self._update_ray()
+
+    def _dir_updated(self):
+        super(GridEye, self)._dir_updated()
+        self._update_ray()
+
+    def _update_ray(self):
         self._ray_pos = self._pos + self._right * self._gx + self._up * self._gy
-        print(self._pos)
+        self._ray_dir = self._front[None, None, :]
