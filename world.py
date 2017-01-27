@@ -23,8 +23,14 @@ def main():
     names = os.listdir(path)
     name = random.choice(names)
 
-    width, height, channels, pixel_size, sensor_size, step = 120, 120, 3, 8, 1, 1
-    eye = GridEye(pos=(0.5, 0.5, 1), up=(0, 1, 0), front=(0, 0, -1), width=width, height=height, size=sensor_size)
+    win_width, win_height, channels = 960, 960, 3
+    pixel_size, sensor_size = 16, 1.1
+    assert win_width % pixel_size == 0 and win_height % pixel_size == 0
+    width, height = win_width // pixel_size, win_height // pixel_size
+    step, angle = 1, 0.1
+
+    eye = GridEye(pos=(0.5, 0.5, 100), up=(0, 1, 0), front=(0, 0, -1),
+                  width=width, height=height, size=sensor_size)
     world = []
     obj = ImageObj(pos=(0, 0, 0), up=(0, 1, 0), front=(0, 0, -1), path=os.path.join(path, name))
     world.append(obj)
@@ -36,30 +42,56 @@ def main():
 
     data[...] = eye.see(world)[:, None, :, None, :]
     move = None
+    rot = None
+    ctrl = False
     while True:
         for event in pygame.event.get():
             if event.type == pgl.KEYUP:
                 move = None
+                rot = None
+                if event.key == pgl.K_LCTRL:
+                    ctrl = False
             if event.type == pgl.KEYDOWN:
                 if event.key == pgl.K_ESCAPE:
                     pygame.quit()
                     exit()
+                elif event.key == pgl.K_LCTRL:
+                    ctrl = True
                 elif event.key == pgl.K_SPACE:
                     name = random.choice(names)
                     obj.set_image(os.path.join(path, name))
                 elif event.key == pgl.K_LEFT:
-                    move = (-step, 0, 0)
+                    move = (-step, 0, 0, True) if not ctrl else None
+                    rot = ('u', angle) if ctrl else None
                 elif event.key == pgl.K_RIGHT:
-                    move = (step, 0, 0)
+                    move = (step, 0, 0, True) if not ctrl else None
+                    rot = ('u', -angle) if ctrl else None
                 elif event.key == pgl.K_UP:
-                    move = (0, step, 0)
+                    move = (0, step, 0, True) if not ctrl else None
+                    rot = ('r', angle) if ctrl else None
                 elif event.key == pgl.K_DOWN:
-                    move = (0, -step, 0)
+                    move = (0, -step, 0, True) if not ctrl else None
+                    rot = ('r', -angle) if ctrl else None
+                elif event.key == pgl.K_c:
+                    move = None
+                    rot = ('f', angle)
+                elif event.key == pgl.K_x:
+                    move = None
+                    rot = ('f', -angle)
+                elif event.key == pgl.K_a:
+                    move = (0, 0, step, True)
+                    rot = None
+                elif event.key == pgl.K_z:
+                    move = (0, 0, -step, True)
+                    rot = None
                 else:
                     move = None
+                    rot = None
 
         if move is not None:
             eye.move(*move)
+        if rot is not None:
+            eye.rot(*rot)
         data[:] = eye.see(world)[:, None, :, None, :]
 
         pygame.surfarray.blit_array(canvas, view)
