@@ -39,16 +39,11 @@ class ImageObj(FlatObj):
         self.set_image(path)
 
     def _get(self, px, py):
-        x1 = np.trunc(px).astype('int')
-#        x2 = np.ceil(px).astype('int')
-        y1 = np.trunc(py).astype('int')
-#        y2 = np.ceil(py).astype('int')
-        x1[(x1 < 0) | (x1 >= self._w)] = -1
-#        x2[(x2 < 0) | (x2 >= self._w)] = -1
-        y1[(y1 < 0) | (y1 >= self._h)] = -1
-#        y2[(y2 < 0) | (y2 >= self._h)] = -1
-#        ret = (self._image[x1, y1] + self._image[x1, y2] + self._image[x2, y1] + self._image[x2, y2]) / 4
-        return self._image[x1, y1]
+        x = np.trunc(px + self._w // 2).astype('int')
+        y = np.trunc(py + self._h // 2).astype('int')
+        x[(x < 0) | (x >= self._w)] = -1
+        y[(y < 0) | (y >= self._h)] = -1
+        return self._image[x, y]
 
     def set_image(self, path):
         img = misc.imread(path, mode="RGB").transpose((1, 0, 2))[:, ::-1, :]
