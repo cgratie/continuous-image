@@ -1,8 +1,8 @@
 from __future__ import print_function, division
 
-import math
-
 import numpy as np
+
+from util import rotation
 
 
 class Base(object):
@@ -21,27 +21,15 @@ class Base(object):
 
     def rot(self, axis, angle):
         if axis == 'f':
-            self._up = self._rot(self._up, self._front, angle)
-            self._right = self._rot(self._right, self._front, angle)
+            self._up = rotation(self._up, self._front, angle)
+            self._right = rotation(self._right, self._front, angle)
         elif axis == 'r':
-            self._up = self._rot(self._up, self._right, angle)
-            self._front = self._rot(self._front, self._right, angle)
+            self._up = rotation(self._up, self._right, angle)
+            self._front = rotation(self._front, self._right, angle)
         elif axis == 'u':
-            self._front = self._rot(self._front, self._up, angle)
-            self._right = self._rot(self._right, self._up, angle)
+            self._front = rotation(self._front, self._up, angle)
+            self._right = rotation(self._right, self._up, angle)
         self._dir_updated()
-
-    @staticmethod
-    def _rot(p, r, t):
-        x, y, z = p
-        u, v, w = r
-        dot = u * x + v * y + w * z
-        ct = math.cos(t)
-        st = math.sin(t)
-        xx = u * dot * (1 - ct) + x * ct + (- w * y + v * z) * st
-        yy = v * dot * (1 - ct) + y * ct + (w * x - u * z) * st
-        zz = w * dot * (1 - ct) + z * ct + (- v * x + w * y) * st
-        return np.array((xx, yy, zz))
 
     def _pos_updated(self):
         pass
