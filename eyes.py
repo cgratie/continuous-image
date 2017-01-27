@@ -21,9 +21,9 @@ class Eye(Base):
     def _see(self, obj):
         return obj.view(self._ray_pos, self._ray_dir)
 
-    def see(self, world):
+    def see(self, objs):
         self._clear()
-        for obj in world.objs:
+        for obj in objs:
             self._update(self._see(obj))
         return self._view
 
