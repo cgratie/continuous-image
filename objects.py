@@ -25,9 +25,9 @@ class FlatObj(Obj):
         d = (self._pos - ray_pos).dot(self._front) / ray_dir.dot(self._front)
         intersections = d[:, :, None] * ray_dir + ray_pos
         px = (intersections - self._pos).dot(self._right)
-        px[d < 0] = -1
+        px[d < 0] = np.inf
         py = (intersections - self._pos).dot(self._up)
-        py[d < 0] = -1
+        py[d < 0] = np.inf
         return self._get(px, py)
 
 
