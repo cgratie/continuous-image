@@ -29,14 +29,24 @@ class Eye(Base):
 
 
 class GridEye(Eye):
-    def __init__(self, pos, up, front, width, height, size):
+    def __init__(self, pos, up, front, width, height, size, fdist=None):
         super(GridEye, self).__init__(pos, up, front)
 
-        self._gx = np.linspace(-0.5, 0.5, width)[:, None, None] * size * (width - 1)
-        self._gy = np.linspace(0.5, -0.5, height)[None, :, None] * size * (height - 1)
+        self._gx = np.linspace(-0.5, 0.5, width)[:, None, None] * size * (width - 1)  # type: np.ndarray
+        self._gy = np.linspace(0.5, -0.5, height)[None, :, None] * size * (height - 1)  # type: np.ndarray
+        self._fdist = fdist
         self._update_ray()
 
         self._view = np.zeros((height, width, 3))
+
+    @property
+    def fdist(self):
+        return self._fdist
+
+    @fdist.setter
+    def fdist(self, val):
+        self._fdist = val
+        self._update_ray()
 
     def _clear(self):
         self._view[...] = 0
@@ -53,5 +63,12 @@ class GridEye(Eye):
         self._update_ray()
 
     def _update_ray(self):
-        self._ray_pos = self._pos + self._right * self._gx + self._up * self._gy
-        self._ray_dir = self._front[None, None, :]
+        if self._fdist is None:
+            self._ray_pos = self._pos + self._right * self._gx + self._up * self._gy
+            self._ray_dir = self._front[None, None, :]
+        else:
+            self._ray_pos = (self._pos + self._fdist * self._front)[None, None, :]
+            if self._fdist > 0:
+                self._ray_dir = self._fdist * self._front - (self._right * self._gx + self._up * self._gy)
+            else:
+                self._ray_dir = (self._right * self._gx + self._up * self._gy) - self._fdist * self._front

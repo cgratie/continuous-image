@@ -87,10 +87,18 @@ def main():
                 else:
                     move = None
                     rot = None
+
                     if event.key == pgl.K_b:
                         obj.mode = "bilinear"
                     elif event.key == pgl.K_n:
                         obj.mode = "nearest"
+
+                    if event.key == pgl.K_p:
+                        eye.fdist = None
+                    elif event.key == pgl.K_f:
+                        eye.fdist = 25
+                    elif event.key == pgl.K_r:
+                        eye.fdist = -25
 
         if move is not None:
             eye.move(*move)
