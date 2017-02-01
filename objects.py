@@ -56,6 +56,10 @@ class ImageObj(FlatObj):
             return (1 - dx) * ((1 - dy) * self._image[x, y] + dy * self._image[x, y + 1]) + \
                 dx * ((1 - dy) * self._image[x + 1, y] + dy * self._image[x + 1, y + 1])
 
+    @property
+    def image(self):
+        return self._image[:-2, -3::-1]
+
     def set_image(self, path):
         img = misc.imread(path, mode="RGB").transpose((1, 0, 2))[:, ::-1, :]
         self._w, self._h, c = img.shape
